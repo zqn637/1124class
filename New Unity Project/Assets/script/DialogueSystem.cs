@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-
+using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 namespace Poly
 {
@@ -21,8 +22,10 @@ namespace Poly
         private TextMeshProUGUI textContent;
         private GameObject goTriangle;
         #endregion
-
+        private UnityEvent onDialogueFinish;
+        
         #region 事件
+        private PlayerInput playerInput;
         private void Awake()
         {
             groupDialogue = GameObject.Find("畫布對話系統").GetComponent<CanvasGroup>();
@@ -31,16 +34,19 @@ namespace Poly
             goTriangle = GameObject.Find("對話完成圖示");
             goTriangle.SetActive(false);
 
-           StartDialogue(dialogueOpening);
-            
+            playerInput = GameObject.Find("PlayerCapsule").GetComponent<PlayerInput>();
+            StartDialogue(dialogueOpening);
+
         }
         #endregion
 
-     
-        public void StartDialogue(DialogueData data)
+
+        public void StartDialogue(DialogueData data, UnityEvent _onDialogueFinish = null)
         {
+            playerInput.enabled = false;
             StartCoroutine(FadeGroup());
             StartCoroutine(TypeEffect(data));
+            onDialogueFinish = _onDialogueFinish;
         }
         
 
@@ -83,6 +89,8 @@ namespace Poly
             }
 
             StartCoroutine(FadeGroup(false));
+            playerInput.enabled = true;
+            onDialogueFinish?.Invoke();
         }
     }
 }
